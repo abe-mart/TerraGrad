@@ -5,6 +5,15 @@ import imageio
 from PIL import ImageColor
 import io
 
+# Initialization
+if 'firstRun' not in st.session_state:
+    st.session_state['firstRun'] = True
+
+# Install EXR support on first run
+if st.session_state['firstRun']:
+    imageio.plugins.freeimage.download()
+    st.session_state['firstRun'] = False
+
 # Define linear interpolation function
 def map_range_np(value, leftMin, leftMax, rightMin, rightMax):
     return interp(value,[leftMin,leftMax],[rightMin,rightMax])
