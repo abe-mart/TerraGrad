@@ -4,10 +4,14 @@ from numpy import interp
 import imageio
 from PIL import ImageColor
 import io
+import os
 
 # Initialization
 if 'firstRun' not in st.session_state:
     st.session_state['firstRun'] = True
+if 'c' not in st.session_state:
+    st.session_state['c'] = [[0,0,0],[255,255,255]]
+
 
 # Install EXR support on first run
 if st.session_state['firstRun']:
@@ -33,17 +37,31 @@ if uploaded_file is not None:
     # st.write(type(elev_min))
     # st.write(elev_max)
     
+    if 'ev' not in st.session_state:
+        st.session_state['ev'] = [elev_min,elev_max]
+    
     # Unwrap terrain into 1D array for easier vectorization
     ter_ravel = ter.ravel()
     rgb = np.zeros([len(ter_ravel),3])
     im_out = np.zeros([ter.shape[0],ter.shape[1],3])
     
-    c = []
-    ev = []
-    N = int(st.number_input('Number of Colors',3))
-    for i in range(N):
-        c.append(ImageColor.getcolor(st.color_picker('Color '+str(i)), "RGB"))
-        ev.append(st.slider('Elevation '+str(i),float(elev_min),float(elev_max)))
+    c = st.session_state['c']
+    ev = st.session_state['ev']
+    # N = int(st.number_input('Number of Colors',3))
+    for i in range(len(c)):
+        col1, col2, col3, col4, col5 = st.columns([0.1,0.6,0.06,0.09,0.1])
+        with col1:
+            hx = '#%02x%02x%02x' % tuple(c[i])
+            c[i] = (ImageColor.getcolor(st.color_picker('Color '+str(i),hx), "RGB"))
+        with col2:
+            ev[i] = (st.slider('Elevation '+str(i),float(elev_min),float(elev_max),float(ev[i])))
+        with col3:
+            st.button('Up',key='up'+str(i))
+        with col4:
+            st.button('Down',key='down'+str(i))  
+        with col5:
+            st.button('Delete',key='del'+str(i))
+    st.button('Add color',key='add'+str(i))
  
     # Cycle through colors
     for i in range(len(c)-1):
@@ -73,6 +91,7 @@ if uploaded_file is not None:
     
     temp = io.BytesIO()
     imageio.imwrite(temp,im_out,format='PNG')
+    st.write('Make sure to wait for app to finish running before downloading!')
     st.download_button('Download Image',data=temp,file_name='terrain_colors.png',mime="image/png")
     
 # N = int(st.number_input('How Many?',0))
