@@ -25,7 +25,7 @@ if st.session_state['firstRun']:
     imageio.plugins.freeimage.download()
     st.session_state['firstRun'] = False
     
-# @st.cache(ttl=60)
+@st.cache(ttl=60)
 def read_image(uploaded_file):
     im = imageio.imread(uploaded_file)
     im = cv.normalize(im,None,0,255,cv.NORM_MINMAX,cv.CV_8U)
