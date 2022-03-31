@@ -1,6 +1,4 @@
-imageio==2.9.0
-matplotlib==3.2.2
-numba==0.50.1
-numpy==1.18.5
-Pillow==9.0.1
-streamlit==1.7.0
+imageio>=2.9.0
+matplotlib>=3.2.2
+numpy>=1.18.5
+streamlit>=1.7.0
