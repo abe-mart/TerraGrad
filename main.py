@@ -8,8 +8,9 @@ import io
 # from numba import jit
 # import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
+import matplotlib
 import cv2 as cv
-from cmapy import cmap
+# from cmapy import cmap
 
 st.set_page_config(page_title='TerraGrad',layout='wide')
 
@@ -31,28 +32,28 @@ def read_image(uploaded_file):
     im = cv.normalize(im,None,0,255,cv.NORM_MINMAX,cv.CV_8U)
     return im
 
-def update_image(c,ev,elev_max,elev_min):
-    colors = c.copy()
-    elevs = ev.copy()
-    # Pad colors if needed
-    if elevs[-1] < elev_max:
-        colors.append(colors[-1])
-        elevs.append(elev_max)
-    if elevs[0] > elev_min:
-        colors.insert(0,colors[0])
-        elevs.insert(0,elev_min)
-    nodes = np.interp(elevs,[elev_min,elev_max],[0,1])
-    st.write(nodes)
+# def update_image(c,ev,elev_max,elev_min):
+#     colors = c.copy()
+#     elevs = ev.copy()
+#     # Pad colors if needed
+#     if elevs[-1] < elev_max:
+#         colors.append(colors[-1])
+#         elevs.append(elev_max)
+#     if elevs[0] > elev_min:
+#         colors.insert(0,colors[0])
+#         elevs.insert(0,elev_min)
+#     nodes = np.interp(elevs,[elev_min,elev_max],[0,1])
+#     st.write(nodes)
     
-    colmap = LinearSegmentedColormap.from_list("mycmap",list(zip(nodes,colors)))
-    st.write('Hi!')
+#     colmap = LinearSegmentedColormap.from_list("mycmap",list(zip(nodes,colors)))
+#     st.write('Hi!')
     
-    colmap = cmap(colmap, True)
-    im_color = cv.applyColorMap(ter, colmap)
+#     colmap = cmap(colmap, True)
+#     im_color = cv.applyColorMap(ter, colmap)
     
-    # im_color = colorize(ter,cmap,True)
+#     # im_color = colorize(ter,cmap,True)
     
-    st.image(im_color)
+#     st.image(im_color)
     
 st.title('Welcome to TerraGrad')
 st.write('Upload a terrain file (.exr), pick colors and elevations, and TerraGrad will produce a gradient map. Elevations can be added in any order.')
@@ -150,7 +151,22 @@ if uploaded_file is not None:
     colmap = LinearSegmentedColormap.from_list("mycmap",list(zip(nodes,colors)))
     # st.write('Hi!')
     
-    colmap = cmap(colmap, True)
+    # colmap = cmap(colmap, True)
+    c_map = colmap
+    rgb_order = True
+    rgba_data = matplotlib.cm.ScalarMappable(cmap=c_map).to_rgba(
+        np.arange(0, 1.0, 1.0 / 256.0), bytes=True
+    )
+    rgba_data = rgba_data[:, 0:-1].reshape((256, 1, 3))
+
+    # Convert to BGR (or RGB), uint8, for OpenCV.
+    cmap = np.zeros((256, 1, 3), np.uint8)
+
+    if not rgb_order:
+        cmap[:, :, :] = rgba_data[:, :, ::-1]
+    else:
+        cmap[:, :, :] = rgba_data[:, :, :]
+    colmap = cmap
     im_color = cv.applyColorMap(ter, colmap)
     
     # im_color = colorize(ter,cmap,True)
