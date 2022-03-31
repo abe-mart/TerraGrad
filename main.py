@@ -9,7 +9,7 @@ import io
 # import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 import cv2 as cv
-from cmapy import colorize
+from cmapy import cmap
 
 st.set_page_config(page_title='TerraGrad',layout='wide')
 
@@ -44,10 +44,13 @@ def update_image(c,ev,elev_max,elev_min):
     nodes = np.interp(elevs,[elev_min,elev_max],[0,1])
     st.write(nodes)
     
-    cmap = LinearSegmentedColormap.from_list("mycmap",list(zip(nodes,colors)))
+    colmap = LinearSegmentedColormap.from_list("mycmap",list(zip(nodes,colors)))
     st.write('Hi!')
     
-    im_color = colorize(ter,cmap,True)
+    colmap = cmap(colmap, True)
+    im_color = cv.applyColorMap(ter, colmap)
+    
+    # im_color = colorize(ter,cmap,True)
     
     st.image(im_color)
     
@@ -144,10 +147,13 @@ if uploaded_file is not None:
     nodes = np.interp(elevs,[elev_min,elev_max],[0,1])
     # st.write(nodes)
     
-    cmap = LinearSegmentedColormap.from_list("mycmap",list(zip(nodes,colors)))
+    colmap = LinearSegmentedColormap.from_list("mycmap",list(zip(nodes,colors)))
     # st.write('Hi!')
     
-    im_color = colorize(ter,cmap,True)
+    colmap = cmap(colmap, True)
+    im_color = cv.applyColorMap(ter, colmap)
+    
+    # im_color = colorize(ter,cmap,True)
         
     with column3:
         st.image(im_color)
