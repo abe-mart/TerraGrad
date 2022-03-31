@@ -98,7 +98,7 @@ if uploaded_file is not None:
     with column2:
         export = st.button('Export')
         if export:
-            st.write('See download button below')
+            st.write('Wait for download button to appear at bottom of page')
     
     c = st.session_state['c']
     ev = st.session_state['ev']
